@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Heart, BookOpen, X } from 'lucide-react';
+import { Check, Heart, X } from 'lucide-react';
 import { theme } from '@/utils/theme';
 import { storage } from '@/utils/storage';
 
@@ -31,11 +31,6 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
 
   const handleMoodAction = () => {
     console.log('Add mood action clicked');
-    onClose();
-  };
-
-  const handleNoteAction = () => {
-    console.log('Add note action clicked');
     onClose();
   };
 
@@ -81,12 +76,17 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
             </motion.button>
 
             {!showHabitForm ? (
-              <div className="p-6">
+              <motion.div 
+                className="p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
                 <motion.h2
                   className="text-2xl font-bold text-white mb-6 text-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+                  transition={{ delay: 0.2 }}
                 >
                   What would you like to add?
                 </motion.h2>
@@ -103,16 +103,9 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
                     { 
                       icon: Heart, 
                       label: 'Log Mood', 
-                      description: 'Record how you\'re feeling',
+                      description: 'Record how you\'re feeling today',
                       action: handleMoodAction,
                       color: theme.colors.error
-                    },
-                    { 
-                      icon: BookOpen, 
-                      label: 'Add Note', 
-                      description: 'Write a quick reflection',
-                      action: handleNoteAction,
-                      color: theme.colors.primary
                     },
                   ].map((item, index) => (
                     <motion.button
@@ -125,7 +118,7 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
                       }}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 + index * 0.1 }}
+                      transition={{ delay: 0.3 + index * 0.1 }}
                       whileHover={{ 
                         scale: 1.02,
                         backgroundColor: 'rgba(255, 255, 255, 0.25)',
@@ -150,9 +143,14 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
                     </motion.button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ) : (
-              <div className="p-6">
+              <motion.div 
+                className="p-6"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <motion.h2
                   className="text-2xl font-bold text-white mb-6 text-center"
                   initial={{ opacity: 0, y: 20 }}
@@ -233,7 +231,7 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
                     </motion.button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         </motion.div>

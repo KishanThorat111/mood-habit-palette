@@ -27,6 +27,8 @@ export const storage = {
 
   saveHabits: (habits: Habit[]): void => {
     localStorage.setItem(STORAGE_KEYS.HABITS, JSON.stringify(habits));
+    // Also save today's habit state to mood data
+    storage.saveTodayHabits(habits);
   },
 
   addHabit: (name: string, icon: string): Habit => {
@@ -67,19 +69,53 @@ export const storage = {
     localStorage.setItem(STORAGE_KEYS.MOOD_DATA, JSON.stringify(data));
   },
 
+  // Save today's habit completion state
+  saveTodayHabits: (habits: Habit[]): void => {
+    const today = new Date().toISOString().split('T')[0];
+    const data = storage.getMoodData();
+    const existingIndex = data.findIndex(d => d.date === today);
+    
+    if (existingIndex >= 0) {
+      // Update existing day's habits
+      data[existingIndex].habits = [...habits];
+    } else {
+      // Create new day entry
+      const todayData: DayData = {
+        date: today,
+        habits: [...habits],
+        mood: null,
+        moodEmoji: '',
+      };
+      data.push(todayData);
+    }
+
+    // Keep only last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const filtered = data.filter(d => new Date(d.date) >= thirtyDaysAgo);
+    
+    storage.saveMoodData(filtered);
+  },
+
   setTodayMood: (mood: number, emoji: string): void => {
     const today = new Date().toISOString().split('T')[0];
     const data = storage.getMoodData();
     const existingIndex = data.findIndex(d => d.date === today);
     
+    const currentHabits = storage.getHabits();
+    
     const todayData: DayData = {
       date: today,
-      habits: storage.getHabits(),
+      habits: currentHabits,
       mood,
       moodEmoji: emoji,
     };
 
     if (existingIndex >= 0) {
+      // Preserve existing habits if they exist
+      if (data[existingIndex].habits.length > 0) {
+        todayData.habits = data[existingIndex].habits;
+      }
       data[existingIndex] = todayData;
     } else {
       data.push(todayData);

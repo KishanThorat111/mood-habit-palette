@@ -64,11 +64,11 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
           onClick={onClose}
         >
           <motion.div
-            className="w-full max-w-md rounded-2xl backdrop-blur-xl relative overflow-hidden"
+            className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-3xl backdrop-blur-xl relative"
             style={{
               background: 'rgba(255, 255, 255, 0.25)',
               border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
             }}
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -83,7 +83,7 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
             {/* Close button */}
             <motion.button
               onClick={onClose}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center z-10"
+              className="absolute top-6 right-6 w-10 h-10 rounded-full flex items-center justify-center z-10"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.2)',
                 backdropFilter: 'blur(10px)',
@@ -91,63 +91,81 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <X size={16} className="text-white" />
+              <X size={18} className="text-white" />
             </motion.button>
 
-            <div className="p-6">
-              <motion.h3
-                className="text-2xl font-bold mb-6 text-white text-center"
+            <div className="p-8">
+              {/* Header */}
+              <motion.div
+                className="text-center mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                {dayData.fullDate}
-              </motion.h3>
+                <h3 className="text-3xl font-bold text-white mb-2">
+                  {dayData.fullDate}
+                </h3>
+                <div className="w-16 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent mx-auto rounded-full" />
+              </motion.div>
 
               {/* Mood Section */}
               <motion.div
-                className="mb-6 p-4 rounded-xl"
+                className="mb-8 p-6 rounded-2xl"
                 style={{ background: 'rgba(255, 255, 255, 0.15)' }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white font-medium">Mood</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-3xl">{getMoodEmoji(dayData.mood)}</span>
-                    <span className="text-white/80 text-sm">{getMoodLabel(dayData.mood)}</span>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-white font-semibold text-lg mb-1">Mood</h4>
+                    <p className="text-white/70 text-sm">{getMoodLabel(dayData.mood)}</p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-4xl">{getMoodEmoji(dayData.mood)}</span>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-white">{dayData.mood || '—'}</div>
+                      <div className="text-white/60 text-xs">out of 5</div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
 
               {/* Habits Overview */}
               <motion.div
-                className="mb-6 p-4 rounded-xl"
+                className="mb-8 p-6 rounded-2xl"
                 style={{ background: 'rgba(255, 255, 255, 0.15)' }}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-white font-medium">Habits Completed</span>
-                  <span className="font-bold text-xl" style={{ color: theme.colors.success }}>
-                    {dayData.completedHabits}/{dayData.totalHabits}
-                  </span>
+                <h4 className="text-white font-semibold text-lg mb-4">Habits Overview</h4>
+                
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="text-white/70 text-sm mb-1">Completion Rate</div>
+                    <div className="text-3xl font-bold text-white">{dayData.completionRate}%</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-white/70 text-sm mb-1">Completed</div>
+                    <div className="text-2xl font-bold" style={{ color: theme.colors.success }}>
+                      {dayData.completedHabits}/{dayData.totalHabits}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Progress Chart */}
                 {dayData.totalHabits > 0 && (
-                  <div className="flex items-center space-x-4">
-                    <div className="w-20 h-20">
+                  <div className="flex justify-center">
+                    <div className="w-24 h-24">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={pieData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={25}
-                            outerRadius={40}
+                            innerRadius={30}
+                            outerRadius={48}
                             dataKey="value"
                             strokeWidth={0}
                           >
@@ -158,10 +176,6 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-white/80 text-sm mb-1">Completion Rate</div>
-                      <div className="text-2xl font-bold text-white">{dayData.completionRate}%</div>
-                    </div>
                   </div>
                 )}
               </motion.div>
@@ -169,17 +183,17 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
               {/* Individual Habits */}
               {dayData.habits.length > 0 && (
                 <motion.div
-                  className="mb-6"
+                  className="mb-8"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <h4 className="text-white font-medium mb-3">Habit Details</h4>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                  <h4 className="text-white font-semibold text-lg mb-4">Habit Details</h4>
+                  <div className="space-y-3 max-h-40 overflow-y-auto">
                     {dayData.habits.map((habit, index) => (
                       <motion.div
                         key={habit.id}
-                        className="flex items-center space-x-3 p-2 rounded-lg"
+                        className="flex items-center space-x-4 p-4 rounded-xl"
                         style={{ 
                           background: habit.completed 
                             ? 'rgba(16, 185, 129, 0.2)' 
@@ -189,9 +203,9 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 + index * 0.1 }}
                       >
-                        <span className="text-lg">{habit.icon}</span>
-                        <span className="text-white text-sm flex-1">{habit.name}</span>
-                        <div className={`w-2 h-2 rounded-full ${
+                        <span className="text-2xl">{habit.icon}</span>
+                        <span className="text-white text-sm flex-1 font-medium">{habit.name}</span>
+                        <div className={`w-3 h-3 rounded-full ${
                           habit.completed ? 'bg-green-400' : 'bg-white/40'
                         }`} />
                       </motion.div>
@@ -203,7 +217,7 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
               {/* Close Button */}
               <motion.button
                 onClick={onClose}
-                className="w-full py-3 rounded-xl font-medium text-white"
+                className="w-full py-4 rounded-xl font-semibold text-white text-lg"
                 style={{ backgroundColor: theme.colors.primary }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

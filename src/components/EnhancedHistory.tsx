@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
@@ -15,58 +14,76 @@ const EnhancedHistory: React.FC = () => {
   const [showDayModal, setShowDayModal] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    // Add a small delay to ensure proper rehydration
-    const loadData = () => {
-      try {
-        const data = storage.getMoodData();
-        setMoodData(data);
+  const loadData = () => {
+    try {
+      const data = storage.getMoodData();
+      setMoodData(data);
+      
+      const days = timeRange === 'week' ? 7 : 30;
+      const chartDataArray = [];
+      const today = new Date();
+      
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateString = date.toISOString().split('T')[0];
+        const dayData = data.find(d => d.date === dateString);
         
-        const days = timeRange === 'week' ? 7 : 30;
-        const chartDataArray = [];
-        const today = new Date();
+        // Use today's habits as fallback for days without data
+        const currentHabits = dateString === today.toISOString().split('T')[0] 
+          ? storage.getHabits() 
+          : storage.getHabits();
         
-        for (let i = days - 1; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const dateString = date.toISOString().split('T')[0];
-          const dayData = data.find(d => d.date === dateString);
-          
-          const currentHabits = storage.getHabits();
-          const completedHabits = dayData ? dayData.habits.filter(h => h.completed).length : 0;
-          const totalHabits = dayData ? dayData.habits.length : currentHabits.length;
-          const mood = dayData ? dayData.mood || 0 : 0;
-          
-          chartDataArray.push({
-            date: dateString,
-            day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-            fullDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            completedHabits,
-            totalHabits,
-            completionRate: totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0,
-            mood: mood,
-            habits: dayData?.habits || [],
-          });
-        }
+        const habitsForDay = dayData?.habits || currentHabits.map(h => ({ ...h, completed: false }));
+        const completedHabits = habitsForDay.filter(h => h.completed).length;
+        const totalHabits = habitsForDay.length;
+        const mood = dayData ? dayData.mood || 0 : 0;
         
-        setChartData(chartDataArray);
-        
-        // Set selected day to today if none selected
-        if (!selectedDay && chartDataArray.length > 0) {
-          setSelectedDay(chartDataArray[chartDataArray.length - 1]?.date || '');
-        }
-        
-        setIsLoaded(true);
-      } catch (error) {
-        console.error('Error loading history data:', error);
-        setIsLoaded(true);
+        chartDataArray.push({
+          date: dateString,
+          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          fullDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          completedHabits,
+          totalHabits,
+          completionRate: totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0,
+          mood: mood,
+          habits: habitsForDay,
+        });
       }
+      
+      setChartData(chartDataArray);
+      
+      // Set selected day to today if none selected
+      if (!selectedDay && chartDataArray.length > 0) {
+        setSelectedDay(chartDataArray[chartDataArray.length - 1]?.date || '');
+      }
+      
+      setIsLoaded(true);
+    } catch (error) {
+      console.error('Error loading history data:', error);
+      setIsLoaded(true);
+    }
+  };
+
+  useEffect(() => {
+    // Load data initially and set up interval to refresh
+    loadData();
+    
+    // Refresh data every 5 seconds to catch habit changes
+    const interval = setInterval(loadData, 5000);
+    
+    return () => clearInterval(interval);
+  }, [timeRange, selectedDay]);
+
+  // Add event listener for storage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadData();
     };
 
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(loadData, 100);
-    return () => clearTimeout(timer);
-  }, [timeRange, selectedDay]);
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [timeRange]);
 
   const selectedDayData = chartData.find(d => d.date === selectedDay);
 
