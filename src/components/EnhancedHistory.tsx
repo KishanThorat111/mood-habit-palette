@@ -37,7 +37,7 @@ const EnhancedHistory: React.FC = () => {
         fullDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         completedHabits,
         totalHabits,
-        completionRate: totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0,
+        completionRate: totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0,
         mood: mood,
         habits: dayData?.habits || [],
       });
@@ -49,22 +49,25 @@ const EnhancedHistory: React.FC = () => {
 
   const selectedDayData = chartData.find(d => d.date === selectedDay);
 
-  const moodColors = ['#EF4444', '#F59E0B', '#6B7280', '#22D3EE', '#10B981'];
-
   const customTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload;
       return (
         <motion.div
-          className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-white/30"
+          className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-white/30 z-50"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
+          style={{ zIndex: 9999 }}
         >
-          <p className="font-semibold text-gray-800">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }}>
-              {entry.name}: {entry.value}
+          <p className="font-semibold text-gray-800 mb-2">{data.fullDate}</p>
+          <p style={{ color: theme.colors.primary }}>
+            Completion: {data.completionRate}% ({data.completedHabits}/{data.totalHabits})
+          </p>
+          {payload[0].dataKey === 'mood' && (
+            <p style={{ color: theme.colors.secondary }}>
+              Mood: {data.mood}/5
             </p>
-          ))}
+          )}
         </motion.div>
       );
     }
@@ -72,30 +75,30 @@ const EnhancedHistory: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen pb-24 relative z-10">
       {/* Header */}
       <motion.div
-        className="mb-6"
+        className="mb-6 px-4 pt-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-3xl font-bold mb-2" style={{ color: theme.colors.textDark }}>
+        <h1 className="text-3xl font-bold mb-2 text-white">
           Your Progress
         </h1>
-        <p style={{ color: theme.colors.textLight }}>
+        <p className="text-white/80 text-lg">
           Track your patterns and celebrate your growth
         </p>
       </motion.div>
       
       {/* Time Range Filter */}
       <motion.div
-        className="mb-6"
+        className="mb-6 px-4"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
       >
         <div className="flex items-center space-x-4">
-          <Filter size={20} style={{ color: theme.colors.textLight }} />
+          <Filter size={20} className="text-white" />
           <div className="flex space-x-2">
             {(['week', 'month'] as const).map((range) => (
               <motion.button
@@ -103,8 +106,9 @@ const EnhancedHistory: React.FC = () => {
                 onClick={() => setTimeRange(range)}
                 className="px-4 py-2 rounded-xl font-medium transition-all duration-200 min-w-[44px] min-h-[44px]"
                 style={{
-                  backgroundColor: timeRange === range ? theme.colors.primary : 'rgba(255, 255, 255, 0.7)',
-                  color: timeRange === range ? 'white' : theme.colors.textDefault,
+                  backgroundColor: timeRange === range ? theme.colors.primary : 'rgba(255, 255, 255, 0.2)',
+                  color: timeRange === range ? 'white' : 'rgba(255, 255, 255, 0.9)',
+                  border: `1px solid ${timeRange === range ? 'transparent' : 'rgba(255, 255, 255, 0.3)'}`,
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -118,7 +122,7 @@ const EnhancedHistory: React.FC = () => {
       
       {/* Mood Line Chart */}
       <motion.div
-        className="p-6 rounded-2xl backdrop-blur-xl mb-6"
+        className="p-6 mx-4 rounded-2xl backdrop-blur-xl mb-6 relative z-20"
         style={{
           background: 'rgba(255, 255, 255, 0.25)',
           border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -128,7 +132,7 @@ const EnhancedHistory: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <h3 className="text-xl font-semibold mb-4" style={{ color: theme.colors.textDark }}>
+        <h3 className="text-xl font-semibold mb-4 text-white">
           Mood Trend
         </h3>
         {chartData.length > 0 ? (
@@ -138,9 +142,12 @@ const EnhancedHistory: React.FC = () => {
                 dataKey="day" 
                 axisLine={false}
                 tickLine={false}
-                style={{ fontSize: '12px', fill: theme.colors.textLight }}
+                tick={{ fontSize: 12, fill: 'rgba(255, 255, 255, 0.7)' }}
               />
-              <YAxis hide domain={[0, 5]} />
+              <YAxis 
+                hide 
+                domain={[0, 5]} 
+              />
               <Tooltip content={customTooltip} />
               <Line 
                 type="monotone" 
@@ -148,13 +155,13 @@ const EnhancedHistory: React.FC = () => {
                 stroke={theme.colors.secondary}
                 strokeWidth={3}
                 dot={{ fill: theme.colors.secondary, strokeWidth: 2, r: 6 }}
-                activeDot={{ r: 8, fill: theme.colors.primary }}
+                activeDot={{ r: 8, fill: theme.colors.primary, stroke: 'white', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex items-center justify-center h-48">
-            <p style={{ color: theme.colors.textLight }}>
+            <p className="text-white/70">
               No mood data yet. Start tracking!
             </p>
           </div>
@@ -163,7 +170,7 @@ const EnhancedHistory: React.FC = () => {
       
       {/* Habits Bar Chart */}
       <motion.div
-        className="p-6 rounded-2xl backdrop-blur-xl mb-6"
+        className="p-6 mx-4 rounded-2xl backdrop-blur-xl mb-6 relative z-20"
         style={{
           background: 'rgba(255, 255, 255, 0.25)',
           border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -173,8 +180,8 @@ const EnhancedHistory: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <h3 className="text-xl font-semibold mb-4" style={{ color: theme.colors.textDark }}>
-          Habit Completion
+        <h3 className="text-xl font-semibold mb-4 text-white">
+          Habit Completion Rate
         </h3>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={200}>
@@ -183,9 +190,12 @@ const EnhancedHistory: React.FC = () => {
                 dataKey="day"
                 axisLine={false}
                 tickLine={false}
-                style={{ fontSize: '12px', fill: theme.colors.textLight }}
+                tick={{ fontSize: 12, fill: 'rgba(255, 255, 255, 0.7)' }}
               />
-              <YAxis hide />
+              <YAxis 
+                hide 
+                domain={[0, 100]}
+              />
               <Tooltip content={customTooltip} />
               <Bar 
                 dataKey="completionRate" 
@@ -196,7 +206,7 @@ const EnhancedHistory: React.FC = () => {
           </ResponsiveContainer>
         ) : (
           <div className="flex items-center justify-center h-48">
-            <p style={{ color: theme.colors.textLight }}>
+            <p className="text-white/70">
               No habit data yet. Start tracking!
             </p>
           </div>
@@ -205,7 +215,7 @@ const EnhancedHistory: React.FC = () => {
       
       {/* Day Selector */}
       <motion.div
-        className="mb-6"
+        className="mb-6 px-4 relative z-30"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -220,16 +230,17 @@ const EnhancedHistory: React.FC = () => {
               }}
               className="tab-button flex-shrink-0 px-4 py-3 rounded-xl font-medium transition-all duration-200 min-w-[44px] min-h-[44px]"
               style={{
-                backgroundColor: selectedDay === day.date ? theme.colors.secondary : 'rgba(255, 255, 255, 0.7)',
-                color: selectedDay === day.date ? 'white' : theme.colors.textDefault,
-                border: selectedDay === day.date ? 'none' : '1px solid rgba(0, 0, 0, 0.1)',
+                backgroundColor: selectedDay === day.date ? theme.colors.secondary : 'rgba(255, 255, 255, 0.2)',
+                color: selectedDay === day.date ? 'white' : 'rgba(255, 255, 255, 0.9)',
+                border: selectedDay === day.date ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: selectedDay === day.date ? '0 8px 25px rgba(34, 211, 238, 0.4)' : 'none',
               }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
               <div className="text-center">
                 <div className="text-sm font-semibold">{day.day}</div>
-                <div className="text-xs">{day.fullDate}</div>
+                <div className="text-xs opacity-80">{day.fullDate}</div>
               </div>
             </motion.button>
           ))}
@@ -239,15 +250,15 @@ const EnhancedHistory: React.FC = () => {
       {/* Day Modal */}
       {showDayModal && selectedDayData && (
         <motion.div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => setShowDayModal(false)}
         >
           <motion.div
-            className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 max-w-sm w-full"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 max-w-sm w-full relative z-[10000]"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold mb-4" style={{ color: theme.colors.textDark }}>
@@ -270,7 +281,7 @@ const EnhancedHistory: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span style={{ color: theme.colors.textDefault }}>Habits</span>
                 <span className="font-semibold" style={{ color: theme.colors.primary }}>
-                  {selectedDayData.completedHabits}/{selectedDayData.totalHabits}
+                  {selectedDayData.completedHabits}/{selectedDayData.totalHabits} ({selectedDayData.completionRate}%)
                 </span>
               </div>
             </div>
