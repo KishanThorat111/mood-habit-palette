@@ -1,7 +1,6 @@
-
 import React, { useEffect } from 'react';
 import { theme } from '@/utils/theme';
-import { Check, Undo2 } from 'lucide-react';
+import { Check, Undo2, X } from 'lucide-react';
 
 interface ToastProps {
   message: string;
