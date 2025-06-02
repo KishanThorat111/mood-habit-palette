@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Check, Plus, Heart, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Calendar, Check, Plus } from 'lucide-react';
 import { theme } from '@/utils/theme';
+import AddActionModal from './AddActionModal';
 
 interface EnhancedBottomTabBarProps {
   activeTab: 'dashboard' | 'history';
@@ -10,80 +11,15 @@ interface EnhancedBottomTabBarProps {
 }
 
 const EnhancedBottomTabBar: React.FC<EnhancedBottomTabBarProps> = ({ activeTab, onTabChange }) => {
-  const [showRadialMenu, setShowRadialMenu] = useState(false);
-
-  const radialMenuItems = [
-    { icon: Check, label: 'Add Habit', angle: -90 },
-    { icon: Heart, label: 'Add Mood', angle: -45 },
-    { icon: BookOpen, label: 'Add Note', angle: 0 },
-  ];
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <>
-      {/* Radial Menu Overlay */}
-      <AnimatePresence>
-        {showRadialMenu && (
-          <motion.div
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowRadialMenu(false)}
-          >
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
-              {radialMenuItems.map((item, index) => {
-                const radians = (item.angle * Math.PI) / 180;
-                const distance = 80;
-                const x = Math.cos(radians) * distance;
-                const y = Math.sin(radians) * distance;
-
-                return (
-                  <motion.button
-                    key={item.label}
-                    className="absolute w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{
-                      backgroundColor: theme.colors.primary,
-                      boxShadow: '0 8px 25px rgba(79, 70, 229, 0.4)',
-                    }}
-                    initial={{ 
-                      scale: 0, 
-                      x: 0, 
-                      y: 0,
-                      opacity: 0 
-                    }}
-                    animate={{ 
-                      scale: 1, 
-                      x: x, 
-                      y: y,
-                      opacity: 1 
-                    }}
-                    exit={{ 
-                      scale: 0, 
-                      x: 0, 
-                      y: 0,
-                      opacity: 0 
-                    }}
-                    transition={{
-                      delay: index * 0.1,
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 20
-                    }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => {
-                      console.log(`Add ${item.label} clicked`);
-                      setShowRadialMenu(false);
-                    }}
-                  >
-                    <item.icon size={20} color="white" />
-                  </motion.button>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Add Action Modal */}
+      <AddActionModal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+      />
 
       {/* Bottom Tab Bar */}
       <motion.div
@@ -145,8 +81,8 @@ const EnhancedBottomTabBar: React.FC<EnhancedBottomTabBarProps> = ({ activeTab, 
           className="flex items-center justify-center mx-4"
         >
           <motion.button
-            onClick={() => setShowRadialMenu(!showRadialMenu)}
-            className="w-14 h-14 rounded-full flex items-center justify-center min-w-[44px] min-h-[44px]"
+            onClick={() => setShowModal(true)}
+            className="w-14 h-14 rounded-full flex items-center justify-center min-w-[44px] min-h-[44px] relative"
             style={{
               background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
               boxShadow: '0 8px 25px rgba(79, 70, 229, 0.4)',
@@ -160,18 +96,42 @@ const EnhancedBottomTabBar: React.FC<EnhancedBottomTabBarProps> = ({ activeTab, 
               boxShadow: '0 4px 15px rgba(79, 70, 229, 0.8)',
             }}
             animate={{
-              rotate: showRadialMenu ? 45 : 0,
+              y: [0, -2, 0],
+              boxShadow: [
+                '0 8px 25px rgba(79, 70, 229, 0.4)',
+                '0 12px 30px rgba(79, 70, 229, 0.5)',
+                '0 8px 25px rgba(79, 70, 229, 0.4)',
+              ]
             }}
             transition={{ 
-              type: "spring", 
-              stiffness: 300,
-              damping: 20
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
             }}
           >
+            {/* Floating glow effect */}
             <motion.div
-              animate={{
-                scale: showRadialMenu ? 1.2 : 1,
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
+                filter: 'blur(8px)',
+                opacity: 0.6,
               }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.6, 0.3, 0.6],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            
+            <motion.div
+              className="relative z-10"
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.8 }}
             >
               <Plus size={24} color="white" />
             </motion.div>

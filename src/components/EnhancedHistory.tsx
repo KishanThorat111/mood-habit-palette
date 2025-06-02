@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import { Calendar, Filter } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { Filter } from 'lucide-react';
 import { theme } from '@/utils/theme';
 import { storage, DayData } from '@/utils/storage';
+import DayDetailModal from './DayDetailModal';
 
 const EnhancedHistory: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<string>('');
@@ -12,40 +12,60 @@ const EnhancedHistory: React.FC = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [moodData, setMoodData] = useState<DayData[]>([]);
   const [showDayModal, setShowDayModal] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const data = storage.getMoodData();
-    setMoodData(data);
-    
-    const days = timeRange === 'week' ? 7 : 30;
-    const chartDataArray = [];
-    const today = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateString = date.toISOString().split('T')[0];
-      const dayData = data.find(d => d.date === dateString);
-      
-      const completedHabits = dayData ? dayData.habits.filter(h => h.completed).length : 0;
-      const totalHabits = dayData ? dayData.habits.length : storage.getHabits().length;
-      const mood = dayData ? dayData.mood || 0 : 0;
-      
-      chartDataArray.push({
-        date: dateString,
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        fullDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        completedHabits,
-        totalHabits,
-        completionRate: totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0,
-        mood: mood,
-        habits: dayData?.habits || [],
-      });
-    }
-    
-    setChartData(chartDataArray);
-    setSelectedDay(chartDataArray[chartDataArray.length - 1]?.date || '');
-  }, [timeRange]);
+    // Add a small delay to ensure proper rehydration
+    const loadData = () => {
+      try {
+        const data = storage.getMoodData();
+        setMoodData(data);
+        
+        const days = timeRange === 'week' ? 7 : 30;
+        const chartDataArray = [];
+        const today = new Date();
+        
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          const dateString = date.toISOString().split('T')[0];
+          const dayData = data.find(d => d.date === dateString);
+          
+          const currentHabits = storage.getHabits();
+          const completedHabits = dayData ? dayData.habits.filter(h => h.completed).length : 0;
+          const totalHabits = dayData ? dayData.habits.length : currentHabits.length;
+          const mood = dayData ? dayData.mood || 0 : 0;
+          
+          chartDataArray.push({
+            date: dateString,
+            day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+            fullDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            completedHabits,
+            totalHabits,
+            completionRate: totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0,
+            mood: mood,
+            habits: dayData?.habits || [],
+          });
+        }
+        
+        setChartData(chartDataArray);
+        
+        // Set selected day to today if none selected
+        if (!selectedDay && chartDataArray.length > 0) {
+          setSelectedDay(chartDataArray[chartDataArray.length - 1]?.date || '');
+        }
+        
+        setIsLoaded(true);
+      } catch (error) {
+        console.error('Error loading history data:', error);
+        setIsLoaded(true);
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(loadData, 100);
+    return () => clearTimeout(timer);
+  }, [timeRange, selectedDay]);
 
   const selectedDayData = chartData.find(d => d.date === selectedDay);
 
@@ -54,12 +74,18 @@ const EnhancedHistory: React.FC = () => {
       const data = payload[0].payload;
       return (
         <motion.div
-          className="bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-xl border border-white/30 z-50"
+          className="backdrop-blur-xl p-4 rounded-xl shadow-xl border relative z-[9999]"
+          style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+          }}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          style={{ zIndex: 9999 }}
         >
-          <p className="font-semibold text-gray-800 mb-2">{data.fullDate}</p>
+          <p className="font-semibold mb-2" style={{ color: theme.colors.textDark }}>
+            {data.fullDate}
+          </p>
           <p style={{ color: theme.colors.primary }}>
             Completion: {data.completionRate}% ({data.completedHabits}/{data.totalHabits})
           </p>
@@ -74,8 +100,30 @@ const EnhancedHistory: React.FC = () => {
     return null;
   };
 
+  // Show loading state until data is properly loaded
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen pb-24 relative z-10 flex items-center justify-center">
+        <motion.div
+          className="text-white text-lg"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          Loading your progress...
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24 relative z-10">
+      {/* Day Detail Modal */}
+      <DayDetailModal
+        isOpen={showDayModal}
+        onClose={() => setShowDayModal(false)}
+        dayData={selectedDayData}
+      />
+
       {/* Header */}
       <motion.div
         className="mb-6 px-4 pt-4"
