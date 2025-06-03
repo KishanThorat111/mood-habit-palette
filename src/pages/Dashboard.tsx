@@ -74,14 +74,19 @@ const Dashboard: React.FC = () => {
   const handleDeleteHabit = (habitId: string) => {
     const habit = habits.find(h => h.id === habitId);
     if (habit) {
+      const deletedHabit = { ...habit };
       storage.deleteHabit(habitId);
       setHabits(storage.getHabits());
-      showToast(`"${habit.name}" deleted`);
+      showToast(`"${habit.name}" deleted`, 'info', () => {
+        storage.addHabit(deletedHabit.name, deletedHabit.icon);
+        setHabits(storage.getHabits());
+        hideToast();
+      });
     }
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden pb-24">
       <EnhancedParallaxHeader title="Today's Habits" />
       
       <div className="relative -mt-8 z-10 snap-y snap-mandatory">
@@ -95,7 +100,7 @@ const Dashboard: React.FC = () => {
         </motion.div>
         
         <motion.div 
-          className="pb-24 snap-start"
+          className="snap-start"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -154,7 +159,7 @@ const Dashboard: React.FC = () => {
                   key={habit.id}
                   habit={habit}
                   onToggle={handleToggleHabit}
-                  onLongPress={handleDeleteHabit}
+                  onDelete={handleDeleteHabit}
                   index={index}
                 />
               ))}

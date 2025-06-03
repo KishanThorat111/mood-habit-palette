@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
@@ -306,83 +307,6 @@ const EnhancedHistory: React.FC = () => {
           ))}
         </div>
       </motion.div>
-      
-      {/* Day Modal */}
-      {showDayModal && selectedDayData && (
-        <motion.div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          onClick={() => setShowDayModal(false)}
-        >
-          <motion.div
-            className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 max-w-sm w-full relative z-[10000]"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-xl font-bold mb-4" style={{ color: theme.colors.textDark }}>
-              {selectedDayData.fullDate}
-            </h3>
-            
-            {/* Mood and completion summary */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span style={{ color: theme.colors.textDefault }}>Mood</span>
-                <span className="text-2xl">
-                  {selectedDayData.mood === 5 ? '😃' : 
-                   selectedDayData.mood === 4 ? '😊' : 
-                   selectedDayData.mood === 3 ? '😐' : 
-                   selectedDayData.mood === 2 ? '🙁' : 
-                   selectedDayData.mood === 1 ? '😢' : '—'}
-                </span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span style={{ color: theme.colors.textDefault }}>Habits</span>
-                <span className="font-semibold" style={{ color: theme.colors.primary }}>
-                  {selectedDayData.completedHabits}/{selectedDayData.totalHabits} ({selectedDayData.completionRate}%)
-                </span>
-              </div>
-            </div>
-            
-            {/* Mini donut chart */}
-            {selectedDayData.totalHabits > 0 && (
-              <div className="mb-4">
-                <ResponsiveContainer width="100%" height={150}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Completed', value: selectedDayData.completedHabits, color: theme.colors.success },
-                        { name: 'Remaining', value: selectedDayData.totalHabits - selectedDayData.completedHabits, color: '#E5E7EB' }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={60}
-                      dataKey="value"
-                    >
-                      {[selectedDayData.completedHabits, selectedDayData.totalHabits - selectedDayData.completedHabits].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index === 0 ? theme.colors.success : '#E5E7EB'} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-            
-            <motion.button
-              onClick={() => setShowDayModal(false)}
-              className="w-full py-3 rounded-xl font-medium text-white"
-              style={{ backgroundColor: theme.colors.primary }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Close
-            </motion.button>
-          </motion.div>
-        </motion.div>
-      )}
     </div>
   );
 };
