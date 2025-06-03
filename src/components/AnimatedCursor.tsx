@@ -92,15 +92,15 @@ const AnimatedCursor: React.FC = () => {
             background: `radial-gradient(circle, ${theme.colors.primary}20 0%, transparent 70%)`,
             filter: 'blur(8px)',
           }}
+          initial={{ opacity: 0 }}
           animate={{
             x: mousePosition.x - 40,
             y: mousePosition.y - 40,
             scale: 1.2,
             width: 80,
             height: 80,
+            opacity: 1,
           }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{
             type: "spring",
