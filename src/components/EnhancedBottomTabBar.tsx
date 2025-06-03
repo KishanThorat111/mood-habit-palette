@@ -75,6 +75,29 @@ const EnhancedBottomTabBar: React.FC<EnhancedBottomTabBarProps> = ({ activeTab, 
             />
           )}
         </motion.button>
+
+        {/* Add Button */}
+        <motion.button
+          onClick={() => setShowModal(true)}
+          className="cursor-hover mx-4 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 min-w-[44px] min-h-[44px]"
+          style={{
+            background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
+            boxShadow: '0 8px 25px rgba(79, 70, 229, 0.4)',
+          }}
+          whileHover={{ 
+            scale: 1.1,
+            boxShadow: '0 12px 35px rgba(79, 70, 229, 0.5)',
+          }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <motion.div
+            animate={{ rotate: 0 }}
+            whileHover={{ rotate: 180 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Plus size={24} className="text-white" />
+          </motion.div>
+        </motion.button>
         
         {/* History Tab */}
         <motion.button
