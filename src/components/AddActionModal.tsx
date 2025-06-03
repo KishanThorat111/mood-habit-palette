@@ -38,7 +38,8 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end justify-center p-4 z-[9999]"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end justify-center p-4"
+          style={{ zIndex: 99999 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -50,6 +51,7 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
               background: 'rgba(255, 255, 255, 0.25)',
               border: '1px solid rgba(255, 255, 255, 0.3)',
               boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+              zIndex: 100000,
             }}
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -64,10 +66,11 @@ const AddActionModal: React.FC<AddActionModalProps> = ({ isOpen, onClose }) => {
             {/* Close button */}
             <motion.button
               onClick={onClose}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center z-10"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center"
               style={{ 
                 background: 'rgba(255, 255, 255, 0.2)',
                 backdropFilter: 'blur(10px)',
+                zIndex: 100001,
               }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
