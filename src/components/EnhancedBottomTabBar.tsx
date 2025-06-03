@@ -23,12 +23,13 @@ const EnhancedBottomTabBar: React.FC<EnhancedBottomTabBarProps> = ({ activeTab, 
 
       {/* Bottom Tab Bar */}
       <motion.div
-        className="fixed bottom-0 left-0 right-0 flex items-center justify-center py-3 backdrop-blur-xl z-50"
+        className="fixed bottom-0 left-0 right-0 flex items-center justify-center py-3 backdrop-blur-xl"
         style={{
           background: 'rgba(255, 255, 255, 0.3)',
           border: '1px solid rgba(255, 255, 255, 0.3)',
           height: '80px',
           boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.1)',
+          zIndex: 1000,
         }}
         initial={{ y: 100 }}
         animate={{ y: 0 }}

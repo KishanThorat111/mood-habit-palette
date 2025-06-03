@@ -43,13 +43,13 @@ const EnhancedHabitCard: React.FC<EnhancedHabitCardProps> = ({
       onMouseEnter={() => setShowDeleteButton(true)}
       onMouseLeave={() => setShowDeleteButton(false)}
     >
-      {/* Delete Button */}
+      {/* Delete Button - repositioned to avoid overlap */}
       <motion.button
         onClick={(e) => {
           e.stopPropagation();
           onDelete(habit.id);
         }}
-        className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 min-w-[44px] min-h-[44px] z-10"
+        className="absolute top-2 right-16 sm:right-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 min-w-[32px] min-h-[32px] z-10"
         style={{
           background: 'rgba(239, 68, 68, 0.9)',
           opacity: showDeleteButton ? 1 : 0,
@@ -59,7 +59,7 @@ const EnhancedHabitCard: React.FC<EnhancedHabitCardProps> = ({
         whileTap={{ scale: 0.9 }}
         aria-label={`Delete habit: ${habit.name}`}
       >
-        <X size={16} className="text-white" />
+        <X size={14} className="text-white" />
       </motion.button>
 
       {/* Icon */}
@@ -75,7 +75,7 @@ const EnhancedHabitCard: React.FC<EnhancedHabitCardProps> = ({
       </motion.div>
       
       {/* Habit name */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pr-2">
         <motion.h4
           className="font-semibold text-base sm:text-lg truncate"
           style={{

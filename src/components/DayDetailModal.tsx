@@ -58,7 +58,7 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
       {isOpen && (
         <motion.div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-          style={{ zIndex: 99999 }}
+          style={{ zIndex: 999999 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -70,7 +70,7 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
               background: 'rgba(255, 255, 255, 0.25)',
               border: '1px solid rgba(255, 255, 255, 0.3)',
               boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
-              zIndex: 100000,
+              zIndex: 1000000,
             }}
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -89,7 +89,7 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ isOpen, onClose, dayDat
               style={{ 
                 background: 'rgba(255, 255, 255, 0.2)',
                 backdropFilter: 'blur(10px)',
-                zIndex: 100001,
+                zIndex: 1000001,
               }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
