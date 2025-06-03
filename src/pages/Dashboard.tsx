@@ -6,7 +6,7 @@ import EnhancedParallaxHeader from '@/components/EnhancedParallaxHeader';
 import EnhancedMoodPicker from '@/components/EnhancedMoodPicker';
 import EnhancedHabitCard from '@/components/EnhancedHabitCard';
 import AddHabitModal from '@/components/AddHabitModal';
-import Toast from '@/components/Toast';
+import OptimizedToast from '@/components/OptimizedToast';
 import { storage, Habit } from '@/utils/storage';
 import { theme } from '@/utils/theme';
 
@@ -33,6 +33,9 @@ const Dashboard: React.FC = () => {
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success', undoAction?: () => void) => {
     setToast({ message, type, isVisible: true, undoAction });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, isVisible: false }));
+    }, 4000);
   };
 
   const hideToast = () => {
@@ -79,12 +82,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Enhanced Parallax Header */}
       <EnhancedParallaxHeader title="Today's Habits" />
       
-      {/* Content with scroll snapping */}
       <div className="relative -mt-8 z-10 snap-y snap-mandatory">
-        {/* Mood Picker Section */}
         <motion.div 
           className="snap-start"
           initial={{ opacity: 0 }}
@@ -94,7 +94,6 @@ const Dashboard: React.FC = () => {
           <EnhancedMoodPicker selectedMood={selectedMood} onMoodSelect={handleMoodSelect} />
         </motion.div>
         
-        {/* Habits List Section */}
         <motion.div 
           className="pb-24 snap-start"
           initial={{ opacity: 0 }}
@@ -122,17 +121,17 @@ const Dashboard: React.FC = () => {
               >
                 🌱
               </motion.div>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: theme.colors.textDark }}>
+              <h3 className="text-2xl font-bold mb-3 text-white">
                 Start Your Journey
               </h3>
-              <p className="text-center mb-6 text-lg" style={{ color: theme.colors.textLight }}>
+              <p className="text-center mb-6 text-lg text-white/80">
                 Add your first habit to begin tracking your daily progress
               </p>
               <motion.button
                 onClick={() => setIsModalOpen(true)}
                 className="cursor-hover px-8 py-4 rounded-2xl text-white font-semibold transition-all duration-200 min-w-[44px] min-h-[44px]"
                 style={{ 
-                  backgroundColor: theme.colors.primary,
+                  background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
                   boxShadow: '0 8px 25px rgba(79, 70, 229, 0.3)',
                 }}
                 whileHover={{ 
@@ -164,42 +163,13 @@ const Dashboard: React.FC = () => {
         </motion.div>
       </div>
       
-      {/* Enhanced Floating Action Button */}
-      {habits.length > 0 && (
-        <motion.button
-          onClick={() => setIsModalOpen(true)}
-          className="cursor-hover fixed bottom-24 right-6 w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-300 z-30 min-w-[44px] min-h-[44px]"
-          style={{
-            backgroundColor: theme.colors.primary,
-            boxShadow: '0 12px 40px rgba(79, 70, 229, 0.3)',
-          }}
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ 
-            type: "spring",
-            stiffness: 260,
-            damping: 20,
-            delay: 1
-          }}
-          whileHover={{ 
-            scale: 1.1,
-            boxShadow: '0 15px 50px rgba(79, 70, 229, 0.4)',
-          }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <Plus size={28} color="white" />
-        </motion.button>
-      )}
-      
-      {/* Add Habit Modal */}
       <AddHabitModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={handleAddHabit}
       />
       
-      {/* Toast */}
-      <Toast
+      <OptimizedToast
         message={toast.message}
         type={toast.type}
         isVisible={toast.isVisible}

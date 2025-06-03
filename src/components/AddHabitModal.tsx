@@ -43,34 +43,35 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({ isOpen, onClose, onAdd })
       {/* Backdrop */}
       <div 
         className="absolute inset-0 backdrop-blur-sm"
-        style={{ background: 'rgba(0, 0, 0, 0.3)' }}
+        style={{ background: 'rgba(0, 0, 0, 0.5)' }}
         onClick={handleClose}
       />
       
       {/* Modal */}
       <div 
-        className="relative w-full max-w-md p-6 rounded-xl backdrop-blur-md"
+        className="relative w-full max-w-md p-8 rounded-3xl backdrop-blur-xl"
         style={{
-          background: theme.colors.cardBackground,
-          boxShadow: theme.shadow.floating,
+          background: 'rgba(255, 255, 255, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold" style={{ color: theme.colors.textDark }}>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-white">
             Add New Habit
           </h2>
           <button
             onClick={handleClose}
-            className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-xl hover:bg-white/20 transition-colors"
           >
-            <X size={20} style={{ color: theme.colors.textLight }} />
+            <X size={20} className="text-white" />
           </button>
         </div>
         
         {/* Habit name input */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2" style={{ color: theme.colors.textDefault }}>
+        <div className="mb-6">
+          <label className="block text-lg font-medium mb-3 text-white">
             Habit Name
           </label>
           <input
@@ -81,53 +82,63 @@ const AddHabitModal: React.FC<AddHabitModalProps> = ({ isOpen, onClose, onAdd })
               setError('');
             }}
             placeholder="e.g., Read for 20 minutes"
-            className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-4 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+            }}
             autoFocus
           />
           {error && (
-            <p className="mt-1 text-sm text-red-500">{error}</p>
+            <p className="mt-2 text-sm text-red-300">{error}</p>
           )}
         </div>
         
         {/* Icon selector */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2" style={{ color: theme.colors.textDefault }}>
+        <div className="mb-8">
+          <label className="block text-lg font-medium mb-3 text-white">
             Choose an Icon
           </label>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-3">
             {habitIcons.map((icon) => (
               <button
                 key={icon}
                 onClick={() => setSelectedIcon(icon)}
-                className="p-3 rounded-lg transition-all duration-200 hover:scale-110"
+                className="p-4 rounded-xl transition-all duration-200 hover:scale-110"
                 style={{
                   background: selectedIcon === icon 
-                    ? 'rgba(79, 70, 229, 0.2)' 
-                    : 'rgba(255, 255, 255, 0.5)',
+                    ? 'rgba(34, 211, 238, 0.4)' 
+                    : 'rgba(255, 255, 255, 0.15)',
                   border: selectedIcon === icon 
-                    ? '2px solid #4F46E5' 
-                    : '1px solid rgba(0, 0, 0, 0.1)',
+                    ? '2px solid #22D3EE' 
+                    : '1px solid rgba(255, 255, 255, 0.3)',
                 }}
               >
-                <span className="text-xl">{icon}</span>
+                <span className="text-2xl">{icon}</span>
               </button>
             ))}
           </div>
         </div>
         
         {/* Actions */}
-        <div className="flex space-x-3">
+        <div className="flex space-x-4">
           <button
             onClick={handleClose}
-            className="flex-1 p-3 rounded-lg border border-gray-300 font-medium transition-colors hover:bg-gray-50"
-            style={{ color: theme.colors.textDefault }}
+            className="flex-1 p-4 rounded-xl font-medium text-white transition-colors hover:bg-white/20"
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+            }}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 p-3 rounded-lg font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: theme.colors.primary }}
+            className="flex-1 p-4 rounded-xl font-medium text-white transition-colors hover:opacity-90"
+            style={{ 
+              background: `linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
+              boxShadow: '0 8px 25px rgba(79, 70, 229, 0.3)',
+            }}
           >
             Add Habit
           </button>

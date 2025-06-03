@@ -29,7 +29,6 @@ const EnhancedHistory: React.FC = () => {
         const dateString = date.toISOString().split('T')[0];
         const dayData = data.find(d => d.date === dateString);
         
-        // Use today's habits as fallback for days without data
         const currentHabits = dateString === today.toISOString().split('T')[0] 
           ? storage.getHabits() 
           : storage.getHabits();
@@ -53,7 +52,6 @@ const EnhancedHistory: React.FC = () => {
       
       setChartData(chartDataArray);
       
-      // Set selected day to today if none selected
       if (!selectedDay && chartDataArray.length > 0) {
         setSelectedDay(chartDataArray[chartDataArray.length - 1]?.date || '');
       }
@@ -66,16 +64,11 @@ const EnhancedHistory: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load data initially and set up interval to refresh
     loadData();
-    
-    // Refresh data every 5 seconds to catch habit changes
     const interval = setInterval(loadData, 5000);
-    
     return () => clearInterval(interval);
   }, [timeRange, selectedDay]);
 
-  // Add event listener for storage changes
   useEffect(() => {
     const handleStorageChange = () => {
       loadData();
@@ -92,33 +85,34 @@ const EnhancedHistory: React.FC = () => {
       const data = payload[0].payload;
       return (
         <motion.div
-          className="backdrop-blur-xl p-4 rounded-xl shadow-xl border relative z-[9999]"
+          className="backdrop-blur-xl p-6 rounded-2xl shadow-xl border relative z-[9999]"
           style={{
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: 'rgba(255, 255, 255, 0.25)',
             border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
           }}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <p className="font-semibold mb-2" style={{ color: theme.colors.textDark }}>
+          <p className="font-bold mb-3 text-white text-lg">
             {data.fullDate}
           </p>
-          <p style={{ color: theme.colors.primary }}>
-            Completion: {data.completionRate}% ({data.completedHabits}/{data.totalHabits})
-          </p>
-          {payload[0].dataKey === 'mood' && (
-            <p style={{ color: theme.colors.secondary }}>
-              Mood: {data.mood}/5
+          <div className="space-y-2">
+            <p className="text-white/90">
+              <span className="font-medium">Completion:</span> {data.completionRate}% ({data.completedHabits}/{data.totalHabits})
             </p>
-          )}
+            {payload[0].dataKey === 'mood' && (
+              <p className="text-white/90">
+                <span className="font-medium">Mood:</span> {data.mood}/5
+              </p>
+            )}
+          </div>
         </motion.div>
       );
     }
     return null;
   };
 
-  // Show loading state until data is properly loaded
   if (!isLoaded) {
     return (
       <div className="min-h-screen pb-24 relative z-10 flex items-center justify-center">
